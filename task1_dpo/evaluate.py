@@ -132,6 +132,7 @@ def evaluate_preference_pairs(
     tokenizer,
     rows,
     cfg,
+    beta,
 ):
     loader = DataLoader(
         rows,
@@ -194,7 +195,7 @@ def evaluate_preference_pairs(
             policy_rejected_logp,
             ref_chosen_logp,
             ref_rejected_logp,
-            float(cfg["beta"]),
+            beta,
         )
 
         n = chosen["input_ids"].shape[0]
@@ -459,6 +460,11 @@ def main():
         default="standard",
     )
 
+    ap.add_argument(
+        "--beta",
+        type=float,
+    )
+
     args = ap.parse_args()
 
     bundle = load_evaluation_bundle(
@@ -467,6 +473,11 @@ def main():
     )
 
     cfg = bundle["cfg"]
+    eval_beta = float(
+        cfg["beta"]
+        if args.beta is None
+        else args.beta
+    )
     rows = bundle["rows"]
     tokenizer = bundle["tokenizer"]
     policy = bundle["policy"]
@@ -497,6 +508,7 @@ def main():
             tokenizer,
             kept_rows,
             cfg,
+            eval_beta,
         )
     )
 
@@ -531,7 +543,7 @@ def main():
             args.adapter,
 
         "beta":
-            float(cfg["beta"]),
+            eval_beta,
 
         "max_sequence_length":
             max_length,

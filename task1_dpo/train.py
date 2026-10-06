@@ -261,8 +261,17 @@ def run_training(
                 beta,
             )
 
+            window_start = (
+                step // grad_accum_steps
+            ) * grad_accum_steps
+
+            accum_group_size = min(
+                grad_accum_steps,
+                len(loader) - window_start,
+            )
+
             scaled_loss = (
-                loss / grad_accum_steps
+                loss / accum_group_size
             )
 
             scaled_loss.backward()

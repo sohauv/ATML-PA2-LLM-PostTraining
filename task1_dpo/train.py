@@ -79,6 +79,33 @@ def prepare_dpo_run(
         rows = rows[: int(max_examples)]
 
     tokenizer = load_tokenizer(cfg["base_model"])
+    max_length = int(cfg["max_sequence_length"])
+
+    filtered_rows = []
+    dropped = []
+
+    for i, row in enumerate(rows):
+        prompt = prompt_messages_from_preference(row)
+
+        prompt_ids = tokenizer.apply_chat_template(
+            prompt,
+            tokenize=True,
+            add_generation_prompt=True,
+        )
+
+        if len(prompt_ids) >= max_length:
+            dropped.append((i, len(prompt_ids)))
+            continue
+
+        filtered_rows.append(row)
+
+    print(
+        f"DPO rows: {len(rows)} total, "
+        f"{len(filtered_rows)} kept, "
+        f"{len(dropped)} dropped for prompt length >= {max_length}"
+    )
+
+    rows = filtered_rows
 
     model = load_policy(
         cfg,

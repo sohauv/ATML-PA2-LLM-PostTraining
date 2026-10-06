@@ -17,7 +17,7 @@ from common.data import (
     repo_path,
 )
 from common.generation import response_sequence_logprobs
-from common.logging_utils import append_jsonl, set_seed
+from common.logging_utils import append_jsonl, save_json, set_seed
 from common.models import (
     load_policy,
     load_tokenizer,
@@ -106,6 +106,23 @@ def prepare_dpo_run(
     )
 
     rows = filtered_rows
+
+    save_json(
+        "results/task1_dpo/filtered_prompt_indices.json",
+        {
+            "max_sequence_length": max_length,
+            "total_rows": len(filtered_rows) + len(dropped),
+            "kept_rows": len(filtered_rows),
+            "dropped_rows": len(dropped),
+            "dropped": [
+                {
+                    "index": int(i),
+                    "prompt_tokens": int(n),
+                }
+                for i, n in dropped
+            ],
+        },
+    )
 
     model = load_policy(
         cfg,

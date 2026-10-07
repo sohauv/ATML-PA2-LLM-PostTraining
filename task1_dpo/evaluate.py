@@ -35,17 +35,18 @@ from task1_dpo.dpo import dpo_loss
 
 def make_collate(tokenizer, max_length):
     def collate(rows):
-        chosen, rejected = [], []
+        chosen = []
+        rejected = []
 
         for row in rows:
             prompt = prompt_messages_from_preference(row)
-            yc, yr = preference_responses(row)
+            chosen_response, rejected_response = preference_responses(row)
 
             chosen.append(
                 encode_prompt_response(
                     tokenizer,
                     prompt,
-                    yc,
+                    chosen_response,
                     max_length,
                 )
             )
@@ -54,7 +55,7 @@ def make_collate(tokenizer, max_length):
                 encode_prompt_response(
                     tokenizer,
                     prompt,
-                    yr,
+                    rejected_response,
                     max_length,
                 )
             )
@@ -83,11 +84,13 @@ def load_evaluation_bundle(
         trainable=False,
     )
 
+    rows = read_jsonl(
+        cfg["paths"]["dpo_standard_eval"]
+    )
+
     return {
         "cfg": cfg,
-        "rows": read_jsonl(
-            cfg["paths"]["dpo_standard_eval"]
-        ),
+        "rows": rows,
         "tokenizer": tokenizer,
         "policy": policy,
     }
@@ -98,11 +101,11 @@ def filter_rows_for_length(
     tokenizer,
     max_length,
 ):
-    kept = []
+    kept_rows = []
     kept_indices = []
     dropped = []
 
-    for i, row in enumerate(rows):
+    for index, row in enumerate(rows):
         prompt = prompt_messages_from_preference(row)
 
         prompt_ids = tokenizer.apply_chat_template(
@@ -114,16 +117,22 @@ def filter_rows_for_length(
         if len(prompt_ids) >= max_length:
             dropped.append(
                 {
-                    "index": int(i),
-                    "prompt_tokens": int(len(prompt_ids)),
+                    "index": int(index),
+                    "prompt_tokens": int(
+                        len(prompt_ids)
+                    ),
                 }
             )
             continue
 
-        kept.append(row)
-        kept_indices.append(i)
+        kept_rows.append(row)
+        kept_indices.append(index)
 
-    return kept, kept_indices, dropped
+    return (
+        kept_rows,
+        kept_indices,
+        dropped,
+    )
 
 
 @torch.no_grad()
@@ -144,7 +153,9 @@ def evaluate_preference_pairs(
         ),
     )
 
-    device = next(policy.parameters()).device
+    device = next(
+        policy.parameters()
+    ).device
 
     total_examples = 0
     loss_sum = 0.0
@@ -152,13 +163,13 @@ def evaluate_preference_pairs(
 
     for chosen, rejected in loader:
         chosen = {
-            k: v.to(device)
-            for k, v in chosen.items()
+            key: value.to(device)
+            for key, value in chosen.items()
         }
 
         rejected = {
-            k: v.to(device)
-            for k, v in rejected.items()
+            key: value.to(device)
+            for key, value in rejected.items()
         }
 
         with reference_mode(policy):
@@ -198,17 +209,24 @@ def evaluate_preference_pairs(
             beta,
         )
 
-        n = chosen["input_ids"].shape[0]
+        batch_size = chosen[
+            "input_ids"
+        ].shape[0]
 
-        total_examples += n
-        loss_sum += float(loss.item()) * n
+        total_examples += batch_size
+
+        loss_sum += (
+            float(loss.item())
+            * batch_size
+        )
+
         correct_sum += (
             float(
                 diagnostics[
                     "preference_accuracy"
                 ].item()
             )
-            * n
+            * batch_size
         )
 
     return {
@@ -228,13 +246,16 @@ def evaluate_generation(
     policy,
     tokenizer,
     rows,
+    kept_indices,
     cfg,
 ):
     generation_cfg = cfg["generation"]
 
-    batch_size = int(cfg["batch_size"])
+    batch_size = int(
+        cfg["batch_size"]
+    )
 
-    all_records = []
+    records = []
 
     kl_numerator = 0.0
     kl_denominator = 0.0
@@ -245,6 +266,10 @@ def evaluate_generation(
         batch_size,
     ):
         batch_rows = rows[
+            start:start + batch_size
+        ]
+
+        batch_indices = kept_indices[
             start:start + batch_size
         ]
 
@@ -274,7 +299,7 @@ def evaluate_generation(
             ),
         )
 
-        policy_tok_logp, _ = (
+        policy_logp, _ = (
             response_token_logprobs(
                 policy,
                 generated["sequences"],
@@ -285,7 +310,7 @@ def evaluate_generation(
         )
 
         with reference_mode(policy):
-            ref_tok_logp, _ = (
+            reference_logp, _ = (
                 response_token_logprobs(
                     policy,
                     generated["sequences"],
@@ -295,18 +320,18 @@ def evaluate_generation(
                 )
             )
 
-        mask = generated[
+        response_mask = generated[
             "response_mask"
         ]
 
         batch_kl = sampled_kl(
-            policy_tok_logp,
-            ref_tok_logp,
-            mask,
+            policy_logp,
+            reference_logp,
+            response_mask,
         )
 
         valid_tokens = float(
-            mask.sum().item()
+            response_mask.sum().item()
         )
 
         kl_numerator += (
@@ -319,10 +344,24 @@ def evaluate_generation(
         for i, response in enumerate(
             generated["responses"]
         ):
-            all_records.append(
+            row = batch_rows[i]
+
+            records.append(
                 {
                     "prompt_index":
                         start + i,
+
+                    "eval_index":
+                        int(batch_indices[i]),
+
+                    "prompt_id":
+                        row.get("prompt_id"),
+
+                    "source_index":
+                        row.get(
+                            "source_index",
+                            batch_indices[i],
+                        ),
 
                     "response":
                         response,
@@ -352,47 +391,59 @@ def evaluate_generation(
 
     lengths = np.asarray(
         [
-            r["response_length"]
-            for r in all_records
+            record["response_length"]
+            for record in records
         ],
         dtype=float,
     )
 
-    return all_records, {
+    metrics = {
         "kl_from_reference":
             kl_numerator
-            / max(kl_denominator, 1.0),
+            / max(
+                kl_denominator,
+                1.0,
+            ),
 
         "mean_response_length":
-            float(lengths.mean()),
+            float(
+                lengths.mean()
+            ),
 
         "std_response_length":
-            float(lengths.std()),
+            float(
+                lengths.std()
+            ),
 
         "median_response_length":
-            float(np.median(lengths)),
+            float(
+                np.median(lengths)
+            ),
 
         "iqr_response_length":
             float(
-                np.percentile(lengths, 75)
-                -
-                np.percentile(lengths, 25)
+                np.percentile(
+                    lengths,
+                    75,
+                )
+                - np.percentile(
+                    lengths,
+                    25,
+                )
             ),
     }
 
+    return records, metrics
+
 
 @torch.no_grad()
-def evaluate_reward(
-    cfg,
+def score_generation_records(
+    reward_model,
+    reward_tokenizer,
     rows,
     generation_records,
+    batch_size,
 ):
-    reward_model, reward_tokenizer = (
-        load_reward_model(cfg)
-    )
-
-    batch_size = int(cfg["batch_size"])
-
     scores = []
 
     for start in range(
@@ -410,62 +461,400 @@ def evaluate_reward(
         ]
 
         responses = [
-            generation_records[i]["response"]
-            for i in range(
-                start,
-                min(
-                    start + batch_size,
-                    len(generation_records),
-                ),
-            )
+            record["response"]
+            for record in generation_records[
+                start:start + batch_size
+            ]
         ]
 
-        batch_scores = score_reward_pairs(
-            reward_model,
-            reward_tokenizer,
-            prompts,
-            responses,
+        batch_scores = (
+            score_reward_pairs(
+                reward_model,
+                reward_tokenizer,
+                prompts,
+                responses,
+            )
         )
 
         scores.extend(
-            batch_scores.detach()
+            batch_scores
+            .detach()
             .cpu()
             .tolist()
         )
 
+    return [
+        float(score)
+        for score in scores
+    ]
+
+
+def attach_reward_scores(
+    generation_records,
+    scores,
+):
+    if len(generation_records) != len(scores):
+        raise RuntimeError(
+            "Number of generated responses "
+            "does not match number of reward scores."
+        )
+
+    for record, score in zip(
+        generation_records,
+        scores,
+    ):
+        record[
+            "reward_model_score"
+        ] = float(score)
+
+
+def reward_metrics(scores):
+    scores_array = np.asarray(
+        scores,
+        dtype=float,
+    )
+
     return {
         "reward_model_score_mean":
-            float(np.mean(scores)),
+            float(
+                scores_array.mean()
+            ),
 
         "reward_model_score_std":
-            float(np.std(scores)),
+            float(
+                scores_array.std()
+            ),
     }
 
 
-def main():
-    ap = argparse.ArgumentParser()
+@torch.no_grad()
+def generate_reference_records(
+    cfg,
+    policy,
+    tokenizer,
+    rows,
+    kept_indices,
+):
+    generation_cfg = cfg["generation"]
 
-    ap.add_argument(
+    batch_size = int(
+        cfg["batch_size"]
+    )
+
+    records = []
+
+    for start in range(
+        0,
+        len(rows),
+        batch_size,
+    ):
+        batch_rows = rows[
+            start:start + batch_size
+        ]
+
+        batch_indices = kept_indices[
+            start:start + batch_size
+        ]
+
+        prompts = [
+            prompt_messages_from_preference(row)
+            for row in batch_rows
+        ]
+
+        with reference_mode(policy):
+            generated = batch_generate(
+                policy,
+                tokenizer,
+                prompts,
+                max_prompt_length=int(
+                    cfg[
+                        "max_sequence_length"
+                    ]
+                ),
+                max_new_tokens=int(
+                    cfg[
+                        "max_generation_tokens"
+                    ]
+                ),
+                temperature=float(
+                    generation_cfg[
+                        "temperature"
+                    ]
+                ),
+                top_p=float(
+                    generation_cfg[
+                        "top_p"
+                    ]
+                ),
+                do_sample=bool(
+                    generation_cfg[
+                        "do_sample"
+                    ]
+                ),
+            )
+
+        for i, response in enumerate(
+            generated["responses"]
+        ):
+            row = batch_rows[i]
+
+            records.append(
+                {
+                    "eval_index":
+                        int(
+                            batch_indices[i]
+                        ),
+
+                    "prompt_id":
+                        row.get(
+                            "prompt_id"
+                        ),
+
+                    "source_index":
+                        row.get(
+                            "source_index",
+                            batch_indices[i],
+                        ),
+
+                    "response":
+                        response,
+
+                    "response_length":
+                        int(
+                            generated[
+                                "response_lengths"
+                            ][i]
+                        ),
+                }
+            )
+
+    return records
+
+
+@torch.no_grad()
+def build_qualitative_candidates(
+    cfg,
+    policy,
+    tokenizer,
+    reward_model,
+    reward_tokenizer,
+    rows,
+    kept_indices,
+    policy_generation_records,
+    limit,
+    output_path,
+):
+    """
+    Generate reference-policy responses for the same fixed
+    prompts and compare their reward-model scores with the
+    evaluated DPO policy.
+
+    The output is intended for manual inspection of
+    reward-versus-quality agreement/disagreement cases.
+    """
+
+    num_examples = min(
+        int(limit),
+        len(rows),
+    )
+
+    if num_examples <= 0:
+        return 0
+
+    qualitative_rows = rows[
+        :num_examples
+    ]
+
+    qualitative_indices = kept_indices[
+        :num_examples
+    ]
+
+    policy_records = (
+        policy_generation_records[
+            :num_examples
+        ]
+    )
+
+    # Reset the seed so the reference condition begins
+    # from the same fixed RNG state as policy generation.
+    set_seed(
+        int(cfg["seed"])
+    )
+
+    reference_records = (
+        generate_reference_records(
+            cfg,
+            policy,
+            tokenizer,
+            qualitative_rows,
+            qualitative_indices,
+        )
+    )
+
+    batch_size = int(
+        cfg["batch_size"]
+    )
+
+    reference_scores = (
+        score_generation_records(
+            reward_model,
+            reward_tokenizer,
+            qualitative_rows,
+            reference_records,
+            batch_size,
+        )
+    )
+
+    attach_reward_scores(
+        reference_records,
+        reference_scores,
+    )
+
+    candidates = []
+
+    for i in range(num_examples):
+        row = qualitative_rows[i]
+
+        policy_record = (
+            policy_records[i]
+        )
+
+        reference_record = (
+            reference_records[i]
+        )
+
+        policy_score = float(
+            policy_record[
+                "reward_model_score"
+            ]
+        )
+
+        reference_score = float(
+            reference_record[
+                "reward_model_score"
+            ]
+        )
+
+        candidates.append(
+            {
+                "input_position":
+                    int(i),
+
+                "eval_index":
+                    int(
+                        qualitative_indices[i]
+                    ),
+
+                "prompt_id":
+                    row.get(
+                        "prompt_id"
+                    ),
+
+                "source_index":
+                    row.get(
+                        "source_index",
+                        qualitative_indices[i],
+                    ),
+
+                "prompt":
+                    prompt_messages_from_preference(
+                        row
+                    ),
+
+                "reference_response":
+                    reference_record[
+                        "response"
+                    ],
+
+                "policy_response":
+                    policy_record[
+                        "response"
+                    ],
+
+                "reference_reward":
+                    reference_score,
+
+                "policy_reward":
+                    policy_score,
+
+                "reward_gain":
+                    policy_score
+                    - reference_score,
+
+                "reference_length":
+                    int(
+                        reference_record[
+                            "response_length"
+                        ]
+                    ),
+
+                "policy_length":
+                    int(
+                        policy_record[
+                            "response_length"
+                        ]
+                    ),
+            }
+        )
+
+    candidates.sort(
+        key=lambda candidate:
+            candidate["reward_gain"],
+        reverse=True,
+    )
+
+    for rank, candidate in enumerate(
+        candidates,
+        start=1,
+    ):
+        candidate[
+            "reward_gain_rank"
+        ] = int(rank)
+
+    write_jsonl(
+        output_path,
+        candidates,
+    )
+
+    print(
+        f"Saved {len(candidates)} "
+        f"qualitative candidates to "
+        f"{output_path}"
+    )
+
+    return len(candidates)
+
+
+def main():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument(
         "--config",
         default="configs/dpo.yaml",
     )
 
-    ap.add_argument(
+    parser.add_argument(
         "--adapter",
         required=True,
     )
 
-    ap.add_argument(
+    parser.add_argument(
         "--name",
         default="standard",
     )
 
-    ap.add_argument(
+    parser.add_argument(
         "--beta",
         type=float,
     )
 
-    args = ap.parse_args()
+    parser.add_argument(
+        "--qualitative-limit",
+        type=int,
+        default=0,
+    )
+
+    args = parser.parse_args()
 
     bundle = load_evaluation_bundle(
         args.config,
@@ -473,25 +862,28 @@ def main():
     )
 
     cfg = bundle["cfg"]
+    rows = bundle["rows"]
+    tokenizer = bundle["tokenizer"]
+    policy = bundle["policy"]
+
     eval_beta = float(
         cfg["beta"]
         if args.beta is None
         else args.beta
     )
-    rows = bundle["rows"]
-    tokenizer = bundle["tokenizer"]
-    policy = bundle["policy"]
 
     max_length = int(
         cfg["max_sequence_length"]
     )
 
-    kept_rows, kept_indices, dropped = (
-        filter_rows_for_length(
-            rows,
-            tokenizer,
-            max_length,
-        )
+    (
+        kept_rows,
+        kept_indices,
+        dropped,
+    ) = filter_rows_for_length(
+        rows,
+        tokenizer,
+        max_length,
     )
 
     print(
@@ -499,7 +891,8 @@ def main():
         f"{len(rows)} total, "
         f"{len(kept_rows)} kept, "
         f"{len(dropped)} dropped "
-        f"for prompt length >= {max_length}"
+        f"for prompt length >= "
+        f"{max_length}"
     )
 
     pair_metrics = (
@@ -512,23 +905,52 @@ def main():
         )
     )
 
-    # Reset the RNG immediately before generation so every
-    # compared DPO condition uses the same sampling seed.
-    set_seed(int(cfg["seed"]))
+    # Every DPO condition begins stochastic generation
+    # from exactly the same released random seed.
+    set_seed(
+        int(cfg["seed"])
+    )
 
-    generation_records, generation_metrics = (
-        evaluate_generation(
-            policy,
-            tokenizer,
+    (
+        generation_records,
+        generation_metrics,
+    ) = evaluate_generation(
+        policy,
+        tokenizer,
+        kept_rows,
+        kept_indices,
+        cfg,
+    )
+
+    # Load the fixed reward model once and reuse it for
+    # both standard scoring and qualitative diagnostics.
+    reward_model, reward_tokenizer = (
+        load_reward_model(cfg)
+    )
+
+    batch_size = int(
+        cfg["batch_size"]
+    )
+
+    policy_reward_scores = (
+        score_generation_records(
+            reward_model,
+            reward_tokenizer,
             kept_rows,
-            cfg,
+            generation_records,
+            batch_size,
         )
     )
 
-    reward_metrics = evaluate_reward(
-        cfg,
-        kept_rows,
+    attach_reward_scores(
         generation_records,
+        policy_reward_scores,
+    )
+
+    generation_reward_metrics = (
+        reward_metrics(
+            policy_reward_scores
+        )
     )
 
     results_dir = repo_path(
@@ -540,8 +962,31 @@ def main():
         exist_ok=True,
     )
 
+    qualitative_count = 0
+
+    if args.qualitative_limit > 0:
+        qualitative_count = (
+            build_qualitative_candidates(
+                cfg,
+                policy,
+                tokenizer,
+                reward_model,
+                reward_tokenizer,
+                kept_rows,
+                kept_indices,
+                generation_records,
+                args.qualitative_limit,
+                results_dir
+                / (
+                    "qualitative_reward_"
+                    "candidates.jsonl"
+                ),
+            )
+        )
+
     summary = {
-        "name": args.name,
+        "name":
+            args.name,
 
         "adapter":
             args.adapter,
@@ -549,8 +994,20 @@ def main():
         "beta":
             eval_beta,
 
+        "seed":
+            int(
+                cfg["seed"]
+            ),
+
         "max_sequence_length":
             max_length,
+
+        "max_generation_tokens":
+            int(
+                cfg[
+                    "max_generation_tokens"
+                ]
+            ),
 
         "num_original_eval_rows":
             len(rows),
@@ -561,12 +1018,12 @@ def main():
         "num_dropped_rows":
             len(dropped),
 
-        "seed": 
-            int(cfg["seed"]),
+        "qualitative_candidate_count":
+            qualitative_count,
 
         **pair_metrics,
         **generation_metrics,
-        **reward_metrics,
+        **generation_reward_metrics,
     }
 
     save_json(

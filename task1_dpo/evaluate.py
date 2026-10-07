@@ -22,7 +22,7 @@ from common.generation import (
     response_token_logprobs,
     score_reward_pairs,
 )
-from common.logging_utils import save_json
+from common.logging_utils import save_json, set_seed
 from common.metrics import sampled_kl
 from common.models import (
     load_policy,
@@ -512,6 +512,10 @@ def main():
         )
     )
 
+    # Reset the RNG immediately before generation so every
+    # compared DPO condition uses the same sampling seed.
+    set_seed(int(cfg["seed"]))
+
     generation_records, generation_metrics = (
         evaluate_generation(
             policy,
@@ -556,6 +560,9 @@ def main():
 
         "num_dropped_rows":
             len(dropped),
+
+        "seed": 
+            int(cfg["seed"]),
 
         **pair_metrics,
         **generation_metrics,

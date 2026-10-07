@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 import torch
 from torch.optim import AdamW
@@ -66,6 +65,7 @@ def prepare_dpo_run(
     dataset_path: str | None = None,
     beta: float | None = None,
     max_examples: int | None = None,
+    run_name: str = "standard",
 ):
     cfg = load_yaml(config_path)
 
@@ -108,7 +108,7 @@ def prepare_dpo_run(
     rows = filtered_rows
 
     save_json(
-        "results/task1_dpo/filtered_prompt_indices.json",
+        f"results/task1_dpo/{run_name}_filtered_prompt_indices.json",
         {
             "max_sequence_length": max_length,
             "total_rows": len(filtered_rows) + len(dropped),
@@ -174,6 +174,7 @@ def run_training(
         dataset_path,
         beta,
         max_examples,
+        run_name,
     )
 
     cfg = bundle["cfg"]
@@ -186,6 +187,7 @@ def run_training(
     output = repo_path(
         output_path or cfg["standard_output"]
     )
+
     output.parent.mkdir(
         parents=True,
         exist_ok=True,
@@ -199,7 +201,6 @@ def run_training(
 
     log_path = results_dir / f"{run_name}_train.jsonl"
 
-    # Avoid mixing logs from an older run with the current run.
     if log_path.exists():
         log_path.unlink()
 
@@ -208,9 +209,11 @@ def run_training(
     grad_accum_steps = int(
         cfg["grad_accum_steps"]
     )
+
     max_grad_norm = float(
         cfg["max_grad_norm"]
     )
+
     epochs = int(
         cfg["epochs"]
     )
@@ -235,8 +238,6 @@ def run_training(
                 for k, v in rejected.items()
             }
 
-            # Reference policy:
-            # same base model, but with the LoRA adapter disabled.
             with torch.no_grad():
                 with reference_mode(model):
 
@@ -254,8 +255,6 @@ def run_training(
                         )
                     )
 
-            # Trainable policy:
-            # LoRA adapter is enabled again here.
             policy_chosen_logp, _, _ = (
                 response_sequence_logprobs(
                     model,
@@ -366,7 +365,6 @@ def run_training(
                 )
 
     model.save_pretrained(output)
-
     tokenizer.save_pretrained(output)
 
     print()

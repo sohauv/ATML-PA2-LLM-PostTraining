@@ -1,0 +1,49 @@
+{
+  "dropped": [
+    {
+      "index": 6,
+      "prompt_tokens": 819,
+      "length_stratum": "preferred_longer"
+    },
+    {
+      "index": 7,
+      "prompt_tokens": 943,
+      "length_stratum": "preferred_longer"
+    },
+    {
+      "index": 20,
+      "prompt_tokens": 1004,
+      "length_stratum": "rejected_longer"
+    },
+    {
+      "index": 22,
+      "prompt_tokens": 1107,
+      "length_stratum": "length_matched"
+    },
+    {
+      "index": 57,
+      "prompt_tokens": 884,
+      "length_stratum": "preferred_longer"
+    },
+    {
+      "index": 76,
+      "prompt_tokens": 1032,
+      "length_stratum": "length_matched"
+    },
+    {
+      "index": 82,
+      "prompt_tokens": 1050,
+      "length_stratum": "rejected_longer"
+    },
+    {
+      "index": 144,
+      "prompt_tokens": 979,
+      "length_stratum": "rejected_longer"
+    },
+    {
+      "index": 209,
+      "prompt_tokens": 1109,
+      "length_stratum": "preferred_longer"
+    }
+  ]
+}

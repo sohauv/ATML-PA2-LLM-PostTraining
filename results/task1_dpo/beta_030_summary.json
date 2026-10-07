@@ -1,0 +1,19 @@
+{
+  "name": "beta_030",
+  "adapter": "outputs/task1_dpo/beta_030",
+  "beta": 0.3,
+  "max_sequence_length": 768,
+  "num_original_eval_rows": 300,
+  "num_eval_rows": 290,
+  "num_dropped_rows": 10,
+  "dpo_loss": 0.6757815484342904,
+  "preference_accuracy": 0.6379310344827587,
+  "num_examples": 290,
+  "kl_from_reference": -0.00020770990574846718,
+  "mean_response_length": 154.04827586206898,
+  "std_response_length": 105.01062875823459,
+  "median_response_length": 202.5,
+  "iqr_response_length": 214.75,
+  "reward_model_score_mean": 1.2771656578984754,
+  "reward_model_score_std": 1.2179366127406734
+}

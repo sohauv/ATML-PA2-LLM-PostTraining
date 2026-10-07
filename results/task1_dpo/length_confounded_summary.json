@@ -1,0 +1,61 @@
+{
+  "max_sequence_length": 768,
+  "num_stratified_rows_kept": 237,
+  "num_stratified_rows_dropped": 9,
+  "standard": {
+    "name": "standard",
+    "adapter": "/kaggle/input/datasets/sohauvv/task1-standard-backup/outputs/task1_dpo/standard",
+    "strata": {
+      "preferred_longer": {
+        "num_examples": 78,
+        "preference_accuracy": 0.44871794871794873,
+        "dpo_loss": 0.6985571017632117
+      },
+      "length_matched": {
+        "num_examples": 80,
+        "preference_accuracy": 0.575,
+        "dpo_loss": 0.6843201801180839
+      },
+      "rejected_longer": {
+        "num_examples": 79,
+        "preference_accuracy": 0.6582278481012658,
+        "dpo_loss": 0.6605971930902216
+      }
+    },
+    "word_limit": {
+      "num_prompts": 10,
+      "mean_response_length_tokens": 49.7,
+      "std_response_length_tokens": 23.69409209064572,
+      "word_limit_compliance_rate": 0.4,
+      "num_word_limit_prompts": 10
+    }
+  },
+  "length_balanced": {
+    "name": "length_balanced",
+    "adapter": "outputs/task1_dpo/length_balanced",
+    "strata": {
+      "preferred_longer": {
+        "num_examples": 78,
+        "preference_accuracy": 0.44871794871794873,
+        "dpo_loss": 0.7223978913747348
+      },
+      "length_matched": {
+        "num_examples": 80,
+        "preference_accuracy": 0.6,
+        "dpo_loss": 0.6791317656636238
+      },
+      "rejected_longer": {
+        "num_examples": 79,
+        "preference_accuracy": 0.7974683544303798,
+        "dpo_loss": 0.6276084456262709
+      }
+    },
+    "word_limit": {
+      "num_prompts": 10,
+      "mean_response_length_tokens": 47.2,
+      "std_response_length_tokens": 19.75246820020222,
+      "word_limit_compliance_rate": 0.4,
+      "num_word_limit_prompts": 10
+    }
+  }
+}

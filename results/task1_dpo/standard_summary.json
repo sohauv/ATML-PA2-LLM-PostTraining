@@ -1,0 +1,19 @@
+{
+  "name": "standard",
+  "adapter": "outputs/task1_dpo/standard",
+  "beta": 0.1,
+  "max_sequence_length": 768,
+  "num_original_eval_rows": 300,
+  "num_eval_rows": 290,
+  "num_dropped_rows": 10,
+  "dpo_loss": 0.6744954059863912,
+  "preference_accuracy": 0.6413793103448275,
+  "num_examples": 290,
+  "kl_from_reference": 0.00033181052739395493,
+  "mean_response_length": 153.98620689655172,
+  "std_response_length": 106.93691251399657,
+  "median_response_length": 206.5,
+  "iqr_response_length": 219.75,
+  "reward_model_score_mean": 1.2755088773267023,
+  "reward_model_score_std": 1.2901604923390222
+}

@@ -5,16 +5,52 @@ import torch
 from common.metrics import masked_mean, sampled_kl, sample_entropy
 
 
-def group_relative_advantages(rewards: torch.Tensor, group_ids: torch.Tensor, eps: float = 1e-6):
+def group_relative_advantages(
+    rewards: torch.Tensor,
+    group_ids: torch.Tensor,
+    eps: float = 1e-6,
+):
     """Return one scalar advantage per sampled completion.
 
-    `group_ids[i]` identifies which prompt produced reward `rewards[i]`.
-    Validate this implementation against the group-relative definition in the assignment manual.
+    Each completion is normalized using only the rewards of
+    completions sampled for the same prompt.
     """
-    # Starter implementation: students must validate the grouping logic carefully.
-    mean = rewards.mean()
-    std = rewards.std(unbiased=False).clamp_min(eps)
-    return (rewards - mean) / std
+
+    if rewards.ndim != 1:
+        raise ValueError(
+            f"rewards must be 1-D, got shape={tuple(rewards.shape)}"
+        )
+
+    if group_ids.ndim != 1:
+        raise ValueError(
+            f"group_ids must be 1-D, got shape={tuple(group_ids.shape)}"
+        )
+
+    if rewards.numel() != group_ids.numel():
+        raise ValueError(
+            "rewards and group_ids must contain the same number of elements"
+        )
+
+    advantages = torch.zeros_like(rewards)
+
+    for group_id in torch.unique(group_ids):
+        mask = group_ids == group_id
+        group_rewards = rewards[mask]
+
+        mean = group_rewards.mean()
+        std = group_rewards.std(
+            unbiased=False
+        )
+
+        # An equal-reward group carries no relative learning signal.
+        if float(std.item()) < eps:
+            advantages[mask] = 0.0
+        else:
+            advantages[mask] = (
+                group_rewards - mean
+            ) / std
+
+    return advantages
 
 
 def grpo_policy_loss(

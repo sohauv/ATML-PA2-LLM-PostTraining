@@ -1,0 +1,45 @@
+{
+  "num_rollouts": 32,
+  "num_valid_tokens": 8814,
+  "kl_beta": 0.1,
+  "gamma": 1.0,
+  "gae_lambda": 0.95,
+  "conditions": [
+    {
+      "epsilon": 0.05,
+      "unclipped_surrogate": 9.072067769011483e-05,
+      "clipped_surrogate": -0.005394168198108673,
+      "policy_loss": 0.005394168198108673,
+      "clip_fraction": 0.10766961425542831,
+      "affected_token_fraction": 0.0524166114628315,
+      "ratio_mean": 1.0154515504837036,
+      "ratio_std": 0.5086332559585571,
+      "ratio_min": 0.025952715426683426,
+      "ratio_max": 32.6605339050293
+    },
+    {
+      "epsilon": 0.2,
+      "unclipped_surrogate": 9.072067769011483e-05,
+      "clipped_surrogate": -0.003989777062088251,
+      "policy_loss": 0.003989777062088251,
+      "clip_fraction": 0.008509189821779728,
+      "affected_token_fraction": 0.004538234788924456,
+      "ratio_mean": 1.0154515504837036,
+      "ratio_std": 0.5086332559585571,
+      "ratio_min": 0.025952715426683426,
+      "ratio_max": 32.6605339050293
+    },
+    {
+      "epsilon": 0.5,
+      "unclipped_surrogate": 9.072067769011483e-05,
+      "clipped_surrogate": -0.00333421234972775,
+      "policy_loss": 0.00333421234972775,
+      "clip_fraction": 0.005559337325394154,
+      "affected_token_fraction": 0.0032902201637625694,
+      "ratio_mean": 1.0154515504837036,
+      "ratio_std": 0.5086332559585571,
+      "ratio_min": 0.025952715426683426,
+      "ratio_max": 32.6605339050293
+    }
+  ]
+}

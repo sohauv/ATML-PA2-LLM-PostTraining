@@ -1,0 +1,21 @@
+{
+  "name": "kl_beta_020",
+  "adapter": "outputs/task2_ppo/kl_beta_020",
+  "seed": 6304,
+  "num_examples": 200,
+  "max_prompt_length": 256,
+  "max_response_length": 768,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "do_sample": true,
+  "reward_model_score_mean": 1.4931421661376953,
+  "reward_model_score_std": 1.5002574616412507,
+  "kl_from_reference": -1.9754882972247485e-06,
+  "entropy": 1.055634325288695,
+  "mean_response_length": 290.49,
+  "std_response_length": 246.59363312948693,
+  "median_response_length": 241.5,
+  "iqr_response_length": 377.5,
+  "terminated_with_eos_fraction": 0.915,
+  "truncated_fraction": 0.085
+}

@@ -1,0 +1,51 @@
+TASK 2 FINAL FREEZE INVENTORY
+
+STANDARD PPO
+- 20-update training JSONL
+- standard training prompt IDs + source indices
+- standard held-out 200-prompt generations
+- standard held-out evaluation summary
+- reward trajectory figure
+- KL trajectory figure
+- policy-loss trajectory figure
+- value-loss trajectory figure
+- entropy trajectory figure
+- clip-fraction trajectory figure
+- gradient-norm trajectory figure
+- response-length trajectory figure
+- runtime / VRAM / configuration summary
+
+CLIPPING STUDY
+- cached epsilon=.05/.20/.50 diagnostic
+- cached clip fraction
+- cached affected-token fraction
+- cached clipped surrogate
+- three 8-update matched fork logs
+- three 200-prompt held-out evaluations
+- policy-loss stability statistic
+- supporting value-loss and gradient-norm stability
+- equal generated-token/update budgets
+
+KL-PRESSURE STUDY
+- beta=0.00/.10/.20 8-update logs
+- beta=0.00/.10/.20 held-out 200-prompt evaluations
+- held-out reward
+- held-out KL
+- held-out entropy
+- held-out response length
+- training trajectory CSV
+- reward/KL/entropy/length figures
+
+QUALITATIVE EVIDENCE
+- Chikki selected candidate
+- Wayfair selected candidate
+- exact prompt IDs
+- exact source indices
+- both responses
+- both reward-model scores
+- response lengths
+- top-20 alternate candidates
+- all 200 candidate comparisons
+
+CHECKPOINT FOR TASK 4
+- final standard 20-update PPO adapter

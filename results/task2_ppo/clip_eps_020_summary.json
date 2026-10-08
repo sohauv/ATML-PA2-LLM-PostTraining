@@ -1,0 +1,28 @@
+{
+  "run_name": "clip_eps_020",
+  "seed": 6304,
+  "updates": 8,
+  "ppo_epochs": 2,
+  "prompts_per_update": 1,
+  "clip_epsilon": 0.2,
+  "kl_beta": 0.1,
+  "max_prompt_length": 256,
+  "max_response_length": 512,
+  "total_generated_tokens": 2551,
+  "prompt_ids": [
+    "b0d35a5e39f7052ac66ea59ebb31bf70535e3ed3cb294dafdb4918e9fda4e879",
+    "361c9921abedfb482ab331cd1f1d5dcb6b038376b9939a1afff6339e87060bd3",
+    "031b833749cbdeab4b1f4ba4af6e325b5c17791958e10b7615a1e97ca33b0703",
+    "767471940df7a8f247484346e1fcea4d02eca6d1fcbc90d264b0dbb94c39ba68",
+    "81a35c3e324857688ecb9cd1e68c14275f01d7752ed6a0d2a5c9cf4cbeaf0439",
+    "9ea7bde8bc147d9faa96dd85d06930f25660cdfd5239227be23a5ff2728637e6",
+    "ff8a4bead03b120d7cd2e879a2b4cd3945d55a840ca78cdd24571cab5a434a59",
+    "317132817254b4f8e35bbffa6faba1b8e1abbad8b3295186e73167375ec4176f"
+  ],
+  "total_wall_seconds": 126.65504224100005,
+  "peak_vram_bytes": 6877200384,
+  "peak_vram_gb": 6.4048919677734375,
+  "policy_output": "/kaggle/working/ATML-PA2-LLM-PostTraining/outputs/task2_ppo/clip_eps_020",
+  "value_output": "/kaggle/working/ATML-PA2-LLM-PostTraining/outputs/task2_ppo/clip_eps_020_value",
+  "train_log": "/kaggle/working/ATML-PA2-LLM-PostTraining/results/task2_ppo/clip_eps_020_train.jsonl"
+}

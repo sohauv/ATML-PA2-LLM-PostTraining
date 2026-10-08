@@ -1,0 +1,29 @@
+{
+  "eps_005": {
+    "updates": 8,
+    "generated_tokens": 2551,
+    "policy_loss_std": 0.0005011529431017627,
+    "value_loss_std": 9.565885465333691,
+    "policy_grad_norm_std": 0.6602601035902397,
+    "max_abs_policy_loss": 0.0014661783206975088,
+    "mean_clip_fraction": 0.0
+  },
+  "eps_020": {
+    "updates": 8,
+    "generated_tokens": 2551,
+    "policy_loss_std": 0.0005011529431017627,
+    "value_loss_std": 9.565885465333691,
+    "policy_grad_norm_std": 0.6602601035902397,
+    "max_abs_policy_loss": 0.0014661783206975088,
+    "mean_clip_fraction": 0.0
+  },
+  "eps_050": {
+    "updates": 8,
+    "generated_tokens": 2551,
+    "policy_loss_std": 0.0005011529431017627,
+    "value_loss_std": 9.565885465333691,
+    "policy_grad_norm_std": 0.6602601035902397,
+    "max_abs_policy_loss": 0.0014661783206975088,
+    "mean_clip_fraction": 0.0
+  }
+}

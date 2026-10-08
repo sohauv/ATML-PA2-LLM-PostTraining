@@ -439,21 +439,23 @@ def run_ppo(
             ),
         )
 
+        # batch_generate uses torch.inference_mode(), so clone the returned
+        # tensors before using them in PPO computations that require autograd.
         sequences = generated[
             "sequences"
-        ]
+        ].clone()
 
         attention_mask = generated[
             "attention_mask"
-        ]
+        ].clone()
 
         response_ids = generated[
             "response_ids"
-        ]
+        ].clone()
 
         response_mask = generated[
             "response_mask"
-        ]
+        ].clone()
 
         prompt_width = int(
             generated[

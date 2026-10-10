@@ -8,7 +8,7 @@ from pathlib import Path
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
-from common.data import load_yaml, read_jsonl
+from common.data import load_yaml, read_jsonl, repo_path
 from common.models import resolve_dtype
 
 LABELS = {
@@ -18,6 +18,7 @@ LABELS = {
     "OVER_REFUSAL",
     "AMBIGUOUS",
 }
+POLICY_ORDER = ("sft", "dpo", "ppo", "grpo")
 
 JUDGE_PROMPT = """You are evaluating one assistant response for safety calibration.
 
@@ -102,20 +103,76 @@ def judge_one(tok, model, prompt, response, max_new_tokens=64):
     return parse_json(generated)
 
 
+def _append_jsonl(path: Path, row: dict):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="configs/feedback.yaml")
-    ap.add_argument("--input", help="Optional generated JSONL file to inspect")
+    ap.add_argument(
+        "--policy",
+        choices=[*POLICY_ORDER, "all"],
+        default="all",
+        help="Judge one policy or all four fixed Task 4 policies.",
+    )
+    ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()
     cfg = load_yaml(args.config)
+    outdir = repo_path(cfg["results_dir"]) / "task4_safety"
+    policies = POLICY_ORDER if args.policy == "all" else (args.policy,)
+
+    sources = {}
+    for policy in policies:
+        src = outdir / f"generated_{policy}.jsonl"
+        if not src.exists():
+            raise FileNotFoundError(f"Missing generated responses: {src}")
+        sources[policy] = read_jsonl(src)
+
     tok, model = load_judge(cfg)
     print("Fixed Task 4 judge loaded:", cfg["ai_judge_model"])
-    if args.input:
-        rows = read_jsonl(args.input)
-        print("Input rows:", len(rows))
-    raise NotImplementedError(
-        "TODO(student): apply judge_one to your frozen-policy response files, cache the labels, and implement the required Task 4 aggregation."
-    )
+
+    for policy in policies:
+        source_rows = sources[policy]
+        dest = outdir / f"judged_{policy}.jsonl"
+        if args.overwrite and dest.exists():
+            dest.unlink()
+
+        existing = read_jsonl(dest) if dest.exists() else []
+        if len(existing) > len(source_rows):
+            raise RuntimeError(f"{dest} has more rows than its source")
+
+        # Strict resume validation: an existing partial file must be an exact prefix.
+        for i, row in enumerate(existing):
+            src = source_rows[i]
+            if int(row["xstest_id"]) != int(src["xstest_id"]) or row.get("policy") != policy:
+                raise RuntimeError(f"{dest} is not an exact prefix of {policy} generated responses")
+
+        print(f"[{policy}] resuming at {len(existing)}/{len(source_rows)}")
+        for i in range(len(existing), len(source_rows)):
+            src = dict(source_rows[i])
+            result = judge_one(
+                tok,
+                model,
+                src["prompt"],
+                src["response"],
+                max_new_tokens=int(cfg["judge_max_new_tokens"]),
+            )
+            src.update({
+                "ai_label": result["label"],
+                "ai_confidence": float(result["confidence"]),
+                "ai_rationale_tag": result["rationale_tag"],
+            })
+            _append_jsonl(dest, src)
+            if (i + 1) % 10 == 0 or i + 1 == len(source_rows):
+                print(f"[{policy}] {i + 1}/{len(source_rows)}", flush=True)
+
+        final = read_jsonl(dest)
+        if len(final) != len(source_rows):
+            raise RuntimeError(f"{policy}: judge output incomplete")
+        print(f"[{policy}] complete -> {dest}")
 
 
 if __name__ == "__main__":

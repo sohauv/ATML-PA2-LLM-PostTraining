@@ -1,0 +1,35 @@
+{
+  "task3_standard": {
+    "updates": 20,
+    "num_generations": 4,
+    "wall_seconds": 365.01961297299977,
+    "peak_vram_gb": 9.454695701599121,
+    "heldout_examples": 200
+  },
+  "group_size": {
+    "equal_generation_budget": 192,
+    "group_sizes": [
+      2,
+      4,
+      8
+    ],
+    "difficulty_binning_rule": "Rank prompts once by mean reward across their eight fixed cached completions; lowest third=hard, middle third=medium, highest third=easy. Ties are broken by source_index."
+  },
+  "normalization": {
+    "fork_updates": 8,
+    "matched_design": true,
+    "scheduled_generation_token_budget_per_condition": 16384,
+    "heldout_prompt_order_identical": true,
+    "heldout_evaluation_protocol_identical": true,
+    "heldout_examples_per_condition": 200
+  },
+  "generated_assets": [
+    "standard_trajectory.csv",
+    "normalization_heldout_table.csv",
+    "normalization_heldout_deltas.json",
+    "normalization_matched_rollout_signal.csv",
+    "normalization_matched_rollout_signal_summary.json",
+    "normalization_qualitative_candidates.csv",
+    "normalization_qualitative_top20.json"
+  ]
+}

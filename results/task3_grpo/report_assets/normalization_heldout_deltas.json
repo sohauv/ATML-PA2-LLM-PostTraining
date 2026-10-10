@@ -1,0 +1,7 @@
+{
+  "reward_mean_dr_minus_canonical": 0.08106456756591807,
+  "kl_dr_minus_canonical": 2.2197134677170082e-05,
+  "entropy_dr_minus_canonical": 0.025130599156989453,
+  "mean_response_length_dr_minus_canonical": -8.220000000000027,
+  "truncated_fraction_dr_minus_canonical": -0.0050000000000000044
+}

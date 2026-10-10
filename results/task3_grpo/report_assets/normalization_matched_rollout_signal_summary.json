@@ -1,0 +1,14 @@
+{
+  "num_valid_sequences": 24,
+  "split_rule": "Rank all valid canonical-fork rollout sequences by realized train length; lower half=short, upper half=long.",
+  "short_mean_length": 58.666666666666664,
+  "long_mean_length": 302.0833333333333,
+  "canonical_short_total_abs_signal": 0.8623427717636029,
+  "canonical_long_total_abs_signal": 0.873449974382917,
+  "dr_short_total_abs_signal_counterfactual": 0.10653659984018304,
+  "dr_long_total_abs_signal_counterfactual": 0.5263386844089837,
+  "canonical_short_per_token_abs_weight": 0.01654721905014175,
+  "canonical_long_per_token_abs_weight": 0.00308258058204414,
+  "dr_short_per_token_abs_weight_counterfactual": 0.0016842632261007868,
+  "dr_long_per_token_abs_weight_counterfactual": 0.0017059569812166349
+}

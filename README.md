@@ -22,7 +22,6 @@ Pinned release revision:
 `0b350481fb03f5525a35bcdec4131bd4fe487f98`
 
 ---
-# ATML PA2 - LLM Post-Training
 
 This is the **student starter repository** for ATML PA2. The released code is intentionally incomplete: Tasks 1-3 provide model/data loading, objective helpers, checkpoint restoration, and experiment entry points, but **you must implement the training loops and ablation orchestration yourself**. Each of Tasks 1-3 also contains one deliberate algorithmic defect in its core objective code; identifying and correcting these defects is part of validating your implementation.
 
@@ -108,10 +107,39 @@ python -m task2_ppo.ablate_kl --config configs/ppo.yaml
 ### Task 3 - GRPO
 
 ```bash
-python -m task3_grpo.continue_train --config configs/grpo.yaml --run-name standard
-python -m task3_grpo.evaluate --config configs/grpo.yaml --adapter outputs/task3_grpo/standard --name standard
-python -m task3_grpo.analyze_group_size --config configs/grpo.yaml
-python -m task3_grpo.compare_normalization --config configs/grpo.yaml
+# Standard 20-update GRPO continuation
+python -m task3_grpo.continue_train \
+  --config configs/grpo.yaml \
+  --output outputs/task3_grpo/standard \
+  --run-name standard
+
+# Standard held-out evaluation
+python -m task3_grpo.evaluate \
+  --config configs/grpo.yaml \
+  --adapter outputs/task3_grpo/standard \
+  --name standard
+
+# Equal-generation K = 2, 4, 8 diagnostic
+python -m task3_grpo.analyze_group_size \
+  --config configs/grpo.yaml
+
+# Matched 8-update canonical GRPO / Dr-GRPO forks
+python -m task3_grpo.compare_normalization \
+  --config configs/grpo.yaml
+
+# Held-out evaluation of both normalization forks
+python -m task3_grpo.evaluate \
+  --config configs/grpo.yaml \
+  --adapter outputs/task3_grpo/normalization_canonical \
+  --name normalization_canonical
+
+python -m task3_grpo.evaluate \
+  --config configs/grpo.yaml \
+  --adapter outputs/task3_grpo/normalization_dr_grpo \
+  --name normalization_dr_grpo
+
+# Validate matched evaluation protocol and produce Task 3 evidence tables
+python -m task3_grpo.finalize_results
 ```
 
 ### Task 4 - Safety calibration

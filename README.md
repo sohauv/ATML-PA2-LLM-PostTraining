@@ -5,7 +5,7 @@
 ## Quick start
 
 ```bash
-git clone https://github.com/AbDu11aHHH/ATML-PA2-LLM-PostTraining.git
+git clone https://github.com/sohauv/ATML-PA2-LLM-PostTraining.git
 cd ATML-PA2-LLM-PostTraining
 python -m pip install -r requirements.txt
 python -m scripts.download_assets
@@ -30,14 +30,14 @@ Task 4 supplies the fixed AI safety judge and response-generation utilities, but
 ## 1. Clone and install
 
 ```bash
-git clone https://github.com/COURSE_ORG/ATML-PA2-LLM-PostTraining.git
+git clone https://github.com/sohauv/ATML-PA2-LLM-PostTraining.git
 cd ATML-PA2-LLM-PostTraining
 python -m pip install -r requirements.txt
 ```
 
 ## 2. Download the course assets
 
-The large course-created checkpoints and fixed data are distributed as a GitHub Release asset rather than normal Git files. After cloning, run:
+The large course-created checkpoints and fixed data are downloaded from the pinned course asset release on Hugging Face. After cloning, run:
 
 ```bash
 python -m scripts.download_assets
@@ -144,13 +144,34 @@ python -m task3_grpo.finalize_results
 
 ### Task 4 - Safety calibration
 
-The judge loader/parser are supplied. You must implement the requested generation aggregation and evaluation.
+The four frozen policies are evaluated on the fixed XSTest prompt set with identical deterministic decoding. Create the blind manual-audit sheet before inspecting any AI-judge labels.
 
 ```bash
-python -m task4_safety.generate_responses --config configs/feedback.yaml
-python -m task4_safety.judge_responses --config configs/feedback.yaml
-python -m task4_safety.make_audit_sheet --config configs/feedback.yaml
-python -m task4_safety.evaluate_safety --config configs/feedback.yaml
+# Generate one deterministic response for every XSTest prompt from
+# SFT, standard DPO, standard PPO, and standard GRPO.
+python -m task4_safety.generate_responses \
+  --config configs/feedback.yaml \
+  --policy all \
+  --batch-size 4
+
+# Create the fixed 60-prompt blind manual-audit subset.
+python -m task4_safety.make_audit_sheet \
+  --config configs/feedback.yaml
+
+# Manually fill results/task4_safety/manual_audit.csv using only:
+# SAFE_ANSWER, JUSTIFIED_REFUSAL, UNSAFE_COMPLIANCE,
+# OVER_REFUSAL, or AMBIGUOUS.
+# Do not inspect judged_*.jsonl before completing the manual labels.
+
+# Apply the fixed categorical AI safety judge to all four policies.
+python -m task4_safety.judge_responses \
+  --config configs/feedback.yaml \
+  --policy all
+
+# Produce policy summaries, category distributions, and
+# manual-vs-AI agreement/confusion outputs.
+python -m task4_safety.evaluate_safety \
+  --config configs/feedback.yaml
 ```
 
 ### Task 5 - RLVR vs RLAIF

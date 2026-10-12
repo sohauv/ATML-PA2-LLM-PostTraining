@@ -23,9 +23,11 @@ Pinned release revision:
 
 ---
 
-This is the **student starter repository** for ATML PA2. The released code is intentionally incomplete: Tasks 1-3 provide model/data loading, objective helpers, checkpoint restoration, and experiment entry points, but **you must implement the training loops and ablation orchestration yourself**. Each of Tasks 1-3 also contains one deliberate algorithmic defect in its core objective code; identifying and correcting these defects is part of validating your implementation.
+This repository contains the completed implementation and machine-readable experimental results for ATML PA2. It builds on the course starter infrastructure and fixed course assets.
 
-Task 4 supplies the fixed AI safety judge and response-generation utilities, but you must write the evaluation/aggregation code. Task 5 supplies the exact RLVR verifier, the fixed pairwise AI judge used for RLAIF evaluation, and data/model loaders; you must implement the requested evaluation and analysis.
+For Tasks 1-3, the training/ablation pipelines were completed and the deliberate objective defects in DPO, PPO, and GRPO were corrected before running the required experiments. For Task 4, the supplied frozen safety judge is used with the implemented generation, aggregation, and manual-audit pipeline. For Task 5, the supplied exact RLVR verifier and fixed pairwise RLAIF judge are used unchanged with the implemented evaluation and analysis pipeline.
+
+Student-generated machine-readable outputs are stored under `results/`. Large downloaded checkpoints, raw course assets, model caches, and regenerated training outputs remain excluded from Git where appropriate.
 
 ## 1. Clone and install
 
@@ -82,6 +84,7 @@ The PPO value checkpoint is intentionally released as the exact staff midpoint s
 
 ### Task 1 - DPO
 
+```bash
 # Standard DPO
 python -m task1_dpo.train --config configs/dpo.yaml --run-name standard
 python -m task1_dpo.evaluate --config configs/dpo.yaml --adapter outputs/task1_dpo/standard --name standard --qualitative-limit 40
@@ -94,6 +97,7 @@ python -m task1_dpo.train --config configs/dpo.yaml --run-name length_balanced -
 
 # Length-confounding evaluation
 python -m task1_dpo.analyze_length --config configs/dpo.yaml --standard-adapter outputs/task1_dpo/standard --balanced-adapter outputs/task1_dpo/length_balanced
+```
 
 ### Task 2 - PPO
 
@@ -176,13 +180,28 @@ python -m task4_safety.evaluate_safety \
 
 ### Task 5 - RLVR vs RLAIF
 
-The exact verifier and pairwise AI judge are supplied; you implement the evaluation/analysis.
+The supplied exact verifier and fixed pairwise AI judge are used unchanged. The commands below reproduce the in-domain GSM8K evaluation, controlled reward diagnostic study, fixed SVAMP transfer evaluation, and final cross-domain aggregation.
 
 ```bash
-python -m task5_feedback.evaluate_math --config configs/feedback.yaml --dataset gsm
-python -m task5_feedback.score_perturbations --config configs/feedback.yaml
-python -m task5_feedback.evaluate_math --config configs/feedback.yaml --dataset transfer
-python -m task5_feedback.compare_feedback --config configs/feedback.yaml
+# In-domain GSM8K evaluation: SFT, RLVR, and RLAIF
+python -m task5_feedback.evaluate_math \
+  --config configs/feedback.yaml \
+  --dataset gsm \
+  --batch-size 4
+
+# Controlled 100-response reward diagnostic study
+python -m task5_feedback.score_perturbations \
+  --config configs/feedback.yaml
+
+# Fixed 100-example SVAMP transfer evaluation
+python -m task5_feedback.evaluate_math \
+  --config configs/feedback.yaml \
+  --dataset transfer \
+  --batch-size 4
+
+# Aggregate in-domain, diagnostic, and transfer evidence
+python -m task5_feedback.compare_feedback \
+  --config configs/feedback.yaml
 ```
 
 ## 6. Reproducibility rules

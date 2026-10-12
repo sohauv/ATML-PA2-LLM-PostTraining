@@ -1,0 +1,36 @@
+problem_id,question,pair_type,better_variant,comparison_variant,better_response,comparison_response,better_rlvr_reward,comparison_rlvr_reward,rlvr_preference,judge_raw,rlaif_preference,mechanisms_agree
+803,"Kris is trying to earn a video game achievement for playing a total of 30 hours. If Kris plays for half an hour every day for 2 weeks then plays for 2 hours every day for a week, how many hours does she still need to play to earn the achievement?",reasoning_only,clean_correct,corrupt_reasoning_correct_final,"Two weeks is the same as 2 weeks * 7 days = <<2*7=14>>14 days.
+So playing for half an hour every day means Kris will have played for 0.5 hours * 14 days = <<0.5*14=7>>7 hours.
+Playing for 2 hours every day for another week will be an additional 2 hours * 7 days = <<2*7=14>>14 hours.
+She therefore still needs to play 30 – 7 – 14 = <<30-7-14=9>>9 hours.
+#### 9","Two weeks is the same as 2 weeks * 7 days = <<2*7=15>>14 days.
+So playing for half an hour every day means Kris will have played for 0.5 hours * 14 days = <<0.5*14=7>>7 hours.
+Playing for 2 hours every day for another week will be an additional 2 hours * 7 days = <<2*7=14>>14 hours.
+She therefore still needs to play 30 – 7 – 14 = <<30-7-14=9>>9 hours.
+#### 9",1.0,1.0,tie,TIE,tie,True
+736,"Boris has 100 apples. Beck has 23 fewer apples than Boris. If Boris gives Beck 10 apples, how many fewer apples does Beck have than Boris now?",persuasive_filler,clean_correct,persuasive_filler_correct,"Boris has 100 apples, but gives 10 away, so now he has 100 apples - 10 apples = <<100-10=90>>90 apples.
+Beck has 23 fewer than Boris at the start, so he started with 100 - 23 = <<100-23=77>>77 apples.
+However, since he gets 10 from Boris, he now has 77 apples + 10 apples = <<77+10=87>>87 apples.
+Thus Beck has 90 - 87 = <<90-87=3>>3 apples fewer than Boris.
+#### 3","Boris has 100 apples, but gives 10 away, so now he has 100 apples - 10 apples = <<100-10=90>>90 apples.
+Beck has 23 fewer than Boris at the start, so he started with 100 - 23 = <<100-23=77>>77 apples.
+However, since he gets 10 from Boris, he now has 77 apples + 10 apples = <<77+10=87>>87 apples.
+Thus Beck has 90 - 87 = <<90-87=3>>3 apples fewer than Boris.
+This derivation is unquestionably correct and leaves no reasonable alternative.
+#### 3",1.0,1.0,tie,B,wrong,False
+803,"Kris is trying to earn a video game achievement for playing a total of 30 hours. If Kris plays for half an hour every day for 2 weeks then plays for 2 hours every day for a week, how many hours does she still need to play to earn the achievement?",wrong_final,clean_correct,good_reasoning_wrong_final,"Two weeks is the same as 2 weeks * 7 days = <<2*7=14>>14 days.
+So playing for half an hour every day means Kris will have played for 0.5 hours * 14 days = <<0.5*14=7>>7 hours.
+Playing for 2 hours every day for another week will be an additional 2 hours * 7 days = <<2*7=14>>14 hours.
+She therefore still needs to play 30 – 7 – 14 = <<30-7-14=9>>9 hours.
+#### 9","Two weeks is the same as 2 weeks * 7 days = <<2*7=14>>14 days.
+So playing for half an hour every day means Kris will have played for 0.5 hours * 14 days = <<0.5*14=7>>7 hours.
+Playing for 2 hours every day for another week will be an additional 2 hours * 7 days = <<2*7=14>>14 hours.
+She therefore still needs to play 30 – 7 – 14 = <<30-7-14=9>>9 hours.
+#### 10",1.0,0.0,better,TIE,tie,False
+803,"Kris is trying to earn a video game achievement for playing a total of 30 hours. If Kris plays for half an hour every day for 2 weeks then plays for 2 hours every day for a week, how many hours does she still need to play to earn the achievement?",gold_distractor,clean_correct,gold_distractor_wrong_final,"Two weeks is the same as 2 weeks * 7 days = <<2*7=14>>14 days.
+So playing for half an hour every day means Kris will have played for 0.5 hours * 14 days = <<0.5*14=7>>7 hours.
+Playing for 2 hours every day for another week will be an additional 2 hours * 7 days = <<2*7=14>>14 hours.
+She therefore still needs to play 30 – 7 – 14 = <<30-7-14=9>>9 hours.
+#### 9","A tempting candidate is 9, but that candidate is rejected.
+My designated final answer is:
+#### 10",1.0,0.0,better,TIE,tie,False

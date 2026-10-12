@@ -1,0 +1,137 @@
+{
+  "n_problems": 20,
+  "n_variants": 100,
+  "n_controlled_pairs": 80,
+  "variant_summary": [
+    {
+      "variant_type": "clean_correct",
+      "n": 20,
+      "mean_rlvr_reward": 1.0,
+      "mean_rlaif_group_reward": 0.49375
+    },
+    {
+      "variant_type": "corrupt_reasoning_correct_final",
+      "n": 20,
+      "mean_rlvr_reward": 1.0,
+      "mean_rlaif_group_reward": 0.5
+    },
+    {
+      "variant_type": "gold_distractor_wrong_final",
+      "n": 20,
+      "mean_rlvr_reward": 0.0,
+      "mean_rlaif_group_reward": 0.44375
+    },
+    {
+      "variant_type": "good_reasoning_wrong_final",
+      "n": 20,
+      "mean_rlvr_reward": 0.0,
+      "mean_rlaif_group_reward": 0.475
+    },
+    {
+      "variant_type": "persuasive_filler_correct",
+      "n": 20,
+      "mean_rlvr_reward": 1.0,
+      "mean_rlaif_group_reward": 0.5875
+    }
+  ],
+  "pair_summary": [
+    {
+      "mechanism": "rlvr",
+      "pair_type": "reasoning_only",
+      "n": 20,
+      "better_response_rate": 0.0,
+      "tie_rate": 1.0,
+      "wrong_preference_rate": 0.0
+    },
+    {
+      "mechanism": "rlvr",
+      "pair_type": "wrong_final",
+      "n": 20,
+      "better_response_rate": 1.0,
+      "tie_rate": 0.0,
+      "wrong_preference_rate": 0.0
+    },
+    {
+      "mechanism": "rlvr",
+      "pair_type": "persuasive_filler",
+      "n": 20,
+      "better_response_rate": 0.0,
+      "tie_rate": 1.0,
+      "wrong_preference_rate": 0.0
+    },
+    {
+      "mechanism": "rlvr",
+      "pair_type": "gold_distractor",
+      "n": 20,
+      "better_response_rate": 1.0,
+      "tie_rate": 0.0,
+      "wrong_preference_rate": 0.0
+    },
+    {
+      "mechanism": "rlaif",
+      "pair_type": "reasoning_only",
+      "n": 20,
+      "better_response_rate": 0.0,
+      "tie_rate": 1.0,
+      "wrong_preference_rate": 0.0
+    },
+    {
+      "mechanism": "rlaif",
+      "pair_type": "wrong_final",
+      "n": 20,
+      "better_response_rate": 0.0,
+      "tie_rate": 1.0,
+      "wrong_preference_rate": 0.0
+    },
+    {
+      "mechanism": "rlaif",
+      "pair_type": "persuasive_filler",
+      "n": 20,
+      "better_response_rate": 0.0,
+      "tie_rate": 0.75,
+      "wrong_preference_rate": 0.25
+    },
+    {
+      "mechanism": "rlaif",
+      "pair_type": "gold_distractor",
+      "n": 20,
+      "better_response_rate": 0.25,
+      "tie_rate": 0.7,
+      "wrong_preference_rate": 0.05
+    }
+  ],
+  "sensitivity_summary": [
+    {
+      "mechanism": "rlvr",
+      "Sreason": 0.0,
+      "Sreason_tie_rate": 1.0,
+      "Sreason_wrong_rate": 0.0,
+      "Soutcome": 1.0,
+      "Soutcome_tie_rate": 0.0,
+      "Soutcome_wrong_rate": 0.0,
+      "clean_over_filler_rate": 0.0,
+      "filler_tie_rate": 1.0,
+      "filler_wrong_rate": 0.0,
+      "gold_distractor_robustness": 1.0,
+      "gold_distractor_tie_rate": 0.0,
+      "gold_distractor_wrong_rate": 0.0
+    },
+    {
+      "mechanism": "rlaif",
+      "Sreason": 0.0,
+      "Sreason_tie_rate": 1.0,
+      "Sreason_wrong_rate": 0.0,
+      "Soutcome": 0.125,
+      "Soutcome_tie_rate": 0.85,
+      "Soutcome_wrong_rate": 0.025,
+      "clean_over_filler_rate": 0.0,
+      "filler_tie_rate": 0.75,
+      "filler_wrong_rate": 0.25,
+      "gold_distractor_robustness": 0.25,
+      "gold_distractor_tie_rate": 0.7,
+      "gold_distractor_wrong_rate": 0.05
+    }
+  ],
+  "n_mechanism_disagreements": 40,
+  "Soutcome_definition": "pooled clean_correct vs good_reasoning_wrong_final and clean_correct vs gold_distractor_wrong_final"
+}

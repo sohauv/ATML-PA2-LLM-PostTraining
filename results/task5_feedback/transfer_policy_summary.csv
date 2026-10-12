@@ -1,0 +1,4 @@
+policy,n,exact_accuracy,format_compliance,mean_response_tokens,std_response_tokens,median_response_tokens,iqr_response_tokens,truncation_rate,ai_win_rate_vs_sft,judge_tie_rate_vs_sft,verifier_judge_agreement_vs_sft,verifier_judge_decisive_agreement_vs_sft,judge_breaks_verifier_tie_rate
+sft,100,0.47,0.59,171.0,92.71008575122774,141.0,81.75,0.0,0.5,1.0,,,
+rlvr,100,0.47,0.58,161.68,74.50890953436374,144.0,79.5,0.0,0.49,0.64,0.54,0.25,0.26666666666666666
+rlaif,100,0.51,0.64,161.9,74.47234385998603,146.5,80.25,0.01,0.49,0.66,0.53,0.19444444444444445,0.28125

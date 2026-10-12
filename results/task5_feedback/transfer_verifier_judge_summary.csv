@@ -1,0 +1,7 @@
+policy,verifier_preference,n,judge_policy_rate,judge_sft_rate,judge_tie_rate,agreement_rate
+rlvr,policy,20,0.2,0.3,0.5,0.2
+rlvr,sft,20,0.2,0.3,0.5,0.3
+rlvr,tie,60,0.15,0.11666666666666667,0.7333333333333333,0.7333333333333333
+rlaif,policy,20,0.2,0.25,0.55,0.2
+rlaif,sft,16,0.25,0.1875,0.5625,0.1875
+rlaif,tie,64,0.125,0.15625,0.71875,0.71875

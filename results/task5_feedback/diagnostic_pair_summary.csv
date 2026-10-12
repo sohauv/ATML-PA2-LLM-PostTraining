@@ -1,0 +1,9 @@
+mechanism,pair_type,n,better_response_rate,tie_rate,wrong_preference_rate
+rlvr,reasoning_only,20,0.0,1.0,0.0
+rlvr,wrong_final,20,1.0,0.0,0.0
+rlvr,persuasive_filler,20,0.0,1.0,0.0
+rlvr,gold_distractor,20,1.0,0.0,0.0
+rlaif,reasoning_only,20,0.0,1.0,0.0
+rlaif,wrong_final,20,0.0,1.0,0.0
+rlaif,persuasive_filler,20,0.0,0.75,0.25
+rlaif,gold_distractor,20,0.25,0.7,0.05

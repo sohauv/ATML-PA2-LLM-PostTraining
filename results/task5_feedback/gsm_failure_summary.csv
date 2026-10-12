@@ -1,0 +1,10 @@
+policy,failure_type,count,rate
+sft,correct,103,0.3433333333333333
+sft,wrong_final,25,0.08333333333333333
+sft,format_failure,172,0.5733333333333334
+rlvr,correct,93,0.31
+rlvr,wrong_final,38,0.12666666666666668
+rlvr,format_failure,169,0.5633333333333334
+rlaif,correct,93,0.31
+rlaif,wrong_final,34,0.11333333333333333
+rlaif,format_failure,173,0.5766666666666667

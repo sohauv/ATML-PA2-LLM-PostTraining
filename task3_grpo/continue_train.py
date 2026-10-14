@@ -381,7 +381,11 @@ def run_grpo(
     updates: int | None = None,
     loss_type: str = "grpo",
     run_name: str = "standard",
+    likelihood_mode: str = "legacy",
 ):
+    if likelihood_mode not in {"legacy", "eval"}:
+        raise ValueError("likelihood_mode must be legacy or eval")
+
     bundle = prepare_grpo_continuation(
         config_path
     )
@@ -781,7 +785,9 @@ def run_grpo(
         for _ in range(
             policy_epochs
         ):
-            policy.train()
+            # eval() disables dropout without disabling autograd.
+            # legacy reproduces the forward mode of the archived experiments.
+            policy.train(likelihood_mode == "legacy")
 
             optimizer.zero_grad(
                 set_to_none=True
@@ -920,6 +926,7 @@ def run_grpo(
         )
 
         record = {
+            "likelihood_mode": likelihood_mode,
             "run_name":
                 run_name,
 
@@ -1239,6 +1246,7 @@ def run_grpo(
     )
 
     summary = {
+        "likelihood_mode": likelihood_mode,
         "run_name":
             run_name,
 
@@ -1380,6 +1388,8 @@ def main():
         default="standard",
     )
 
+    ap.add_argument("--likelihood-mode", choices=["legacy", "eval"], default="legacy")
+
     args = ap.parse_args()
 
     run_grpo(
@@ -1388,6 +1398,7 @@ def main():
         args.updates,
         args.loss_type,
         args.run_name,
+        args.likelihood_mode,
     )
 
 

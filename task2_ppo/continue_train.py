@@ -231,7 +231,11 @@ def run_ppo(
     clip_epsilon: float | None = None,
     kl_beta: float | None = None,
     run_name: str = "standard",
+    likelihood_mode: str = "legacy",
 ):
+    if likelihood_mode not in {"legacy", "eval"}:
+        raise ValueError("likelihood_mode must be legacy or eval")
+
     bundle = prepare_ppo_continuation(
         config_path
     )
@@ -617,7 +621,9 @@ def run_ppo(
         for _ in range(
             ppo_epochs
         ):
-            policy.train()
+            # eval() disables dropout without disabling autograd.
+            # legacy reproduces the forward mode of the archived experiments.
+            policy.train(likelihood_mode == "legacy")
 
             policy_optimizer.zero_grad(
                 set_to_none=True
@@ -766,6 +772,7 @@ def run_ppo(
         )
 
         record = {
+            "likelihood_mode": likelihood_mode,
             "run_name":
                 run_name,
 
@@ -987,6 +994,7 @@ def run_ppo(
     )
 
     summary = {
+        "likelihood_mode": likelihood_mode,
         "run_name":
             run_name,
 
@@ -1121,6 +1129,8 @@ def main():
         default="standard",
     )
 
+    ap.add_argument("--likelihood-mode", choices=["legacy", "eval"], default="legacy")
+
     args = ap.parse_args()
 
     run_ppo(
@@ -1130,6 +1140,7 @@ def main():
         args.clip_epsilon,
         args.kl_beta,
         args.run_name,
+        args.likelihood_mode,
     )
 
 

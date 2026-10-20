@@ -1,0 +1,21 @@
+{
+  "name": "normalization_dr_grpo_evalmode",
+  "adapter": "/kaggle/working/ATML-PA2-LLM-PostTraining/outputs/task3_grpo/normalization_dr_grpo_evalmode",
+  "seed": 6304,
+  "num_examples": 200,
+  "max_prompt_length": 256,
+  "max_response_length": 768,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "do_sample": true,
+  "reward_model_score_mean": 1.473424072265625,
+  "reward_model_score_std": 1.5817934189312777,
+  "kl_from_reference": 8.555271530192397e-05,
+  "entropy": 1.038933592743292,
+  "mean_response_length": 295.72,
+  "std_response_length": 249.24939638843662,
+  "median_response_length": 257.0,
+  "iqr_response_length": 402.25,
+  "terminated_with_eos_fraction": 0.92,
+  "truncated_fraction": 0.08
+}

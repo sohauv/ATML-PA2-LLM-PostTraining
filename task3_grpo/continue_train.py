@@ -1,4 +1,5 @@
 from __future__ import annotations
+from task3_grpo.memory_efficient import backward_microbatched
 
 import argparse
 import math
@@ -730,6 +731,9 @@ def run_grpo(
                 .float()
             )
 
+        # Release rollout vocabulary logits before backward.
+        del old_logits, _
+
         seq_adv = (
             group_relative_advantages(
                 rewards,
@@ -793,43 +797,54 @@ def run_grpo(
                 set_to_none=True
             )
 
-            new_logp, _ = (
-                response_token_logprobs(
-                    policy,
-                    sequences,
-                    attention_mask,
-                    prompt_width,
-                    response_ids,
-                )
-            )
-
-            loss, diagnostics = (
-                grpo_policy_loss(
-                    new_logp,
-                    old_logp,
-                    seq_adv,
-                    train_mask,
-                    ref_logp,
+            if likelihood_mode == "eval":
+                loss, diagnostics = backward_microbatched(
+                    policy, sequences, attention_mask,
+                    prompt_width, response_ids,
+                    old_logp, seq_adv, train_mask, ref_logp,
                     eps=clip_eps,
                     beta=beta_kl,
-                    loss_type=
-                        loss_type,
-                    max_completion_length=
-                        max_completion_length,
+                    loss_type=loss_type,
+                    max_completion_length=max_completion_length,
                 )
-            )
-
-            if not torch.isfinite(
-                loss
-            ):
-                raise FloatingPointError(
-                    "Non-finite GRPO loss "
-                    f"at update "
-                    f"{update_idx + 1}: "
-                    f"{loss.item()}"
+            else:
+                new_logp, _ = (
+                    response_token_logprobs(
+                        policy,
+                        sequences,
+                        attention_mask,
+                        prompt_width,
+                        response_ids,
+                    )
                 )
 
-            loss.backward()
+                loss, diagnostics = (
+                    grpo_policy_loss(
+                        new_logp,
+                        old_logp,
+                        seq_adv,
+                        train_mask,
+                        ref_logp,
+                        eps=clip_eps,
+                        beta=beta_kl,
+                        loss_type=
+                            loss_type,
+                        max_completion_length=
+                            max_completion_length,
+                    )
+                )
+
+                if not torch.isfinite(
+                    loss
+                ):
+                    raise FloatingPointError(
+                        "Non-finite GRPO loss "
+                        f"at update "
+                        f"{update_idx + 1}: "
+                        f"{loss.item()}"
+                    )
+
+                loss.backward()
 
             grad_norm = (
                 clip_grad_norm_(
@@ -1218,7 +1233,6 @@ def run_grpo(
             response_mask,
             train_mask,
             old_logp,
-            old_logits,
             ref_logp,
             rewards,
             seq_adv,

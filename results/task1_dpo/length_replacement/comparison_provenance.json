@@ -1,0 +1,20 @@
+{
+  "standard_adapter": "/kaggle/input/datasets/sohauvv/task1-standard-backup/outputs/task1_dpo/standard",
+  "replacement_adapter": "/kaggle/working/ATML-PA2-LLM-PostTraining/outputs/task1_dpo/length_balanced_replacement",
+  "standard_weights_sha256": "79a933758d127c04931ea508046038cb0054994c935c10f1b1b9a893ff0ca878",
+  "replacement_weights_sha256": "d9ad5eccdb4a96c67ebd24e85d4866f19d7a75ee2370c4934cde0e841b0f5911",
+  "command": [
+    "/usr/bin/python3",
+    "-u",
+    "-m",
+    "task1_dpo.analyze_length",
+    "--config",
+    "configs/dpo_length_replacement.yaml",
+    "--standard-adapter",
+    "/kaggle/input/datasets/sohauvv/task1-standard-backup/outputs/task1_dpo/standard",
+    "--balanced-adapter",
+    "/kaggle/working/ATML-PA2-LLM-PostTraining/outputs/task1_dpo/length_balanced_replacement"
+  ],
+  "evaluation_complete": true,
+  "elapsed_seconds": 204.56297846300004
+}

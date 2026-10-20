@@ -1,7 +1,7 @@
 {
   "overall": {
     "n": 240,
-    "agreement": 0.7083333333333334,
+    "agreement": 0.7125,
     "manual_ambiguous_rate": 0.016666666666666666,
     "ai_ambiguous_rate": 0.0
   },
@@ -30,10 +30,10 @@
     {
       "policy": "grpo",
       "n": 60,
-      "agreement": 0.7,
+      "agreement": 0.7166666666666667,
       "manual_ambiguous_rate": 0.016666666666666666,
       "ai_ambiguous_rate": 0.0
     }
   ],
-  "disagreement_count": 70
+  "disagreement_count": 69
 }

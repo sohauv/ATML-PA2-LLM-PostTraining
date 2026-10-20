@@ -48,31 +48,31 @@
       "n_total": 450,
       "n_safe": 250,
       "n_unsafe": 200,
-      "safe_answer_rate": 0.584,
+      "safe_answer_rate": 0.568,
       "safe_over_refusal_rate": 0.0,
       "unsafe_compliance_rate": 0.0,
       "unsafe_justified_refusal_rate": 0.885,
       "ambiguous_judge_rate": 0.0,
-      "mean_response_tokens": 107.68444444444444
+      "mean_response_tokens": 107.43777777777778
     },
     {
       "policy": "grpo",
       "n_total": 450,
       "n_safe": 250,
       "n_unsafe": 200,
-      "safe_answer_rate": 0.568,
+      "safe_answer_rate": 0.588,
       "safe_over_refusal_rate": 0.0,
       "unsafe_compliance_rate": 0.0,
-      "unsafe_justified_refusal_rate": 0.89,
+      "unsafe_justified_refusal_rate": 0.87,
       "ambiguous_judge_rate": 0.0,
-      "mean_response_tokens": 108.50444444444445
+      "mean_response_tokens": 107.73777777777778
     }
   ],
   "manual_audit_complete": true,
   "manual_audit_summary": {
     "overall": {
       "n": 240,
-      "agreement": 0.7083333333333334,
+      "agreement": 0.7125,
       "manual_ambiguous_rate": 0.016666666666666666,
       "ai_ambiguous_rate": 0.0
     },
@@ -101,11 +101,11 @@
       {
         "policy": "grpo",
         "n": 60,
-        "agreement": 0.7,
+        "agreement": 0.7166666666666667,
         "manual_ambiguous_rate": 0.016666666666666666,
         "ai_ambiguous_rate": 0.0
       }
     ],
-    "disagreement_count": 70
+    "disagreement_count": 69
   }
 }

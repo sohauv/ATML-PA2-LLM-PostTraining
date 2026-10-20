@@ -1,0 +1,21 @@
+{
+  "name": "kl_beta_000_evalmode",
+  "adapter": "outputs/task2_ppo/kl_beta_000_evalmode",
+  "seed": 6304,
+  "num_examples": 200,
+  "max_prompt_length": 256,
+  "max_response_length": 768,
+  "temperature": 0.7,
+  "top_p": 0.9,
+  "do_sample": true,
+  "reward_model_score_mean": 1.515412254333496,
+  "reward_model_score_std": 1.4396299317486878,
+  "kl_from_reference": 2.184493326830581e-05,
+  "entropy": 1.082192650040783,
+  "mean_response_length": 302.14,
+  "std_response_length": 247.38474164749937,
+  "median_response_length": 269.5,
+  "iqr_response_length": 411.5,
+  "terminated_with_eos_fraction": 0.925,
+  "truncated_fraction": 0.075
+}

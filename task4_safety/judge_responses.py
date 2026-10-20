@@ -9,6 +9,7 @@ import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 
 from common.data import load_yaml, read_jsonl, repo_path
+from common.result_validation import validate_safety_prefix
 from common.models import resolve_dtype
 
 LABELS = {
@@ -143,6 +144,8 @@ def main():
         existing = read_jsonl(dest) if dest.exists() else []
         if len(existing) > len(source_rows):
             raise RuntimeError(f"{dest} has more rows than its source")
+
+        validate_safety_prefix(existing, source_rows, policy)
 
         # Strict resume validation: an existing partial file must be an exact prefix.
         for i, row in enumerate(existing):

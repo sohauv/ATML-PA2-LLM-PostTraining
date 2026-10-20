@@ -1,0 +1,2 @@
+reward_model_score_mean,reward_model_score_std,kl_from_reference,entropy,mean_response_length,std_response_length,median_response_length,iqr_response_length,terminated_with_eos_fraction,truncated_fraction
+1.45768217086792,1.5246412106502307,2.481347666666343e-05,1.0401415099236786,306.11,263.7369483026601,239.0,439.0,0.905,0.095

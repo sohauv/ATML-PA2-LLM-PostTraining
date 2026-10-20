@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from common.result_validation import validate_math_prefix
+
 import argparse
 import gc
 import json
@@ -227,6 +229,8 @@ def _run_pairwise(
         path = _pairwise_file(outdir, dataset, policy)
         if overwrite and path.exists():
             path.unlink()
+        if path.exists():
+            validate_math_prefix(read_jsonl(path), generations[policy], generations["sft"], policy)
         if not _pairwise_complete(path, expected_ids, policy):
             pending.append(policy)
         else:
